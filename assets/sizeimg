@@ -1,0 +1,5 @@
+#!/bin/sh
+FILENAME="${1%.*}.png"
+convert -resize 36x36 "$1" "../res/drawable-hdpi/$FILENAME"
+convert -resize 18x18 "$1" "../res/drawable-ldpi/$FILENAME"
+convert -resize 24x24 "$1" "../res/drawable-mdpi/$FILENAME"

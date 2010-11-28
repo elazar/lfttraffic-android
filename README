@@ -1,0 +1,11 @@
+Lafayette Traffic is an Android application that provides traffic 
+information for the city of Lafayette, Louisiana and the surrounding cities. 
+This information includes image feeds from city traffic cameras as well as 
+reports of traffic accidents and similar incidents, made available in list 
+and map interfaces.
+
+If you wish to report a bug or suggest a new feature, please file a ticket 
+in the Issues section of this GitHub repository.
+
+The source code for this application is released under the New BSD license. 
+See the LICENSE file for more information.
