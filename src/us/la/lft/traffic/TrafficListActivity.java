@@ -65,8 +65,6 @@ public class TrafficListActivity extends ListActivity {
         super.onCreate(savedInstanceState);
         
         cameraList = new CameraList();
-        
-        new FetchIncidentsTask().execute();
 	}
 	
 	public void onResume() {
