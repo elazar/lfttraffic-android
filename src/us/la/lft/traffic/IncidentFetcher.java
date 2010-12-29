@@ -33,7 +33,7 @@ public class IncidentFetcher {
 	protected IncidentList incidentList = null;
 	protected long lastFetched = 0;
 	protected static IncidentFetcher incidentFetcher;
-	
+
 	protected IncidentFetcher() {
 		HttpParams httpParams = new BasicHttpParams();
 		HttpConnectionParams.setConnectionTimeout(httpParams, 3000);
@@ -41,65 +41,71 @@ public class IncidentFetcher {
 		SchemeRegistry schemeRegistry = new SchemeRegistry();
 		schemeRegistry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
 		ClientConnectionManager connectionManager = new ThreadSafeClientConnManager(httpParams, schemeRegistry);
-        this.httpClient = new DefaultHttpClient(connectionManager, httpParams);
+		this.httpClient = new DefaultHttpClient(connectionManager, httpParams);
 		this.httpRequest = new HttpGet("http://laftrafficscraper.heroku.com");
 	}
-	
+
 	public static IncidentFetcher getInstance() {
 		if (incidentFetcher == null) {
 			incidentFetcher = new IncidentFetcher();
 		}
 		return incidentFetcher;
 	}
-	
+
 	public IncidentList getIncidentList() {
 		if (new Date().getTime() - this.lastFetched < 45) {
 			return this.incidentList;
 		}
 
 		this.incidentList = new IncidentList();
-		
-        HttpResponse httpResponse;
-    	try {
-    		httpResponse = this.httpClient.execute(this.httpRequest);
-    		if (httpResponse.getStatusLine().getStatusCode() == 200) {
-    			InputStream inputStream = httpResponse.getEntity().getContent();
-    			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-    			DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-    			Document document = documentBuilder.parse(inputStream);
-    			NodeList accidents = document.getElementsByTagName("accident");
-    			int accidentCount = accidents.getLength();
-    			Node accident;
-    			int accidentIndex;
-    			String address, description, reportTime;
-    			Date reportDate;
-    			int latitude, longitude;
-    	        
-    			NodeList childNodes;
-    			int childNodeIndex, childNodeCount;
-    			Node childNode;
-    			String childNodeName, childNodeValue;
-    			DateFormat dateParser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-    			DateFormat dateFormatter = new SimpleDateFormat("h:mm a");
-    			for (accidentIndex = 0; accidentIndex < accidentCount; accidentIndex++) {
-    				accident = accidents.item(accidentIndex);
-    				childNodes = accident.getChildNodes();
-    				childNodeCount = childNodes.getLength();
-    				address = description = reportTime = "";
-    				latitude = longitude = 0;
-    				for (childNodeIndex = 0; childNodeIndex < childNodeCount; childNodeIndex++) {
-    					childNode = childNodes.item(childNodeIndex);
-    					if (childNode.getNodeType() != Node.ELEMENT_NODE) {
-    						continue;
-    					}
-    					childNodeName = childNode.getNodeName();
+
+		HttpResponse httpResponse;
+		try {
+			httpResponse = this.httpClient.execute(this.httpRequest);
+			if (httpResponse.getStatusLine().getStatusCode() == 200) {
+				InputStream inputStream = httpResponse.getEntity().getContent();
+				DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+				DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+				Document document = documentBuilder.parse(inputStream);
+				NodeList accidents = document.getElementsByTagName("accident");
+				int accidentCount = accidents.getLength();
+				Node accident;
+				int accidentIndex;
+				String address, description, reportTime;
+				Date reportDate;
+				int reportTimePlusSignIndex;
+				int latitude, longitude;
+
+				NodeList childNodes;
+				int childNodeIndex, childNodeCount;
+				Node childNode;
+				String childNodeName, childNodeValue;
+				DateFormat dateParser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+				DateFormat dateFormatter = new SimpleDateFormat("h:mm a");
+				for (accidentIndex = 0; accidentIndex < accidentCount; accidentIndex++) {
+					accident = accidents.item(accidentIndex);
+					childNodes = accident.getChildNodes();
+					childNodeCount = childNodes.getLength();
+					address = description = reportTime = "";
+					latitude = longitude = 0;
+					for (childNodeIndex = 0; childNodeIndex < childNodeCount; childNodeIndex++) {
+						childNode = childNodes.item(childNodeIndex);
+						if (childNode.getNodeType() != Node.ELEMENT_NODE) {
+							continue;
+						}
+						childNodeName = childNode.getNodeName();
 						childNodeValue = childNode.getChildNodes().item(0).getNodeValue();
 						if (childNodeName.equals("location")) {
 							address = childNodeValue + address;
 						} else if (childNodeName.equals("dueto")) {
 							description = childNodeValue;
 						} else if (childNodeName.equals("time")) {
-							reportTime = childNodeValue.substring(0, childNodeValue.indexOf("+"));
+							reportTimePlusSignIndex = childNodeValue.indexOf("+");
+							if (reportTimePlusSignIndex != -1) {
+								reportTime = childNodeValue.substring(0, reportTimePlusSignIndex);
+							} else {
+								reportTime = childNodeValue;
+							}
 							try {
 								reportDate = dateParser.parse(reportTime);
 								reportTime = dateFormatter.format(reportDate);
@@ -111,16 +117,16 @@ public class IncidentFetcher {
 						} else if (childNodeName.equals("longitude")) {
 							longitude = (int) (Float.parseFloat(childNodeValue) * 1000000);
 						}
-    				}
+					}
 					this.incidentList.add(latitude, longitude, address, description, reportTime);
-    			}
-    			
-    			this.lastFetched = new Date().getTime();
-    		}
-    	} catch (IOException e) {
-    	} catch (ParserConfigurationException e) {
-    	} catch (SAXException e) {
-    	}
+				}
+
+				this.lastFetched = new Date().getTime();
+			}
+		} catch (IOException e) {
+		} catch (ParserConfigurationException e) {
+		} catch (SAXException e) {
+		}
 		return this.incidentList;
 	}
 }
