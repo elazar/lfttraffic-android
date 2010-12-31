@@ -24,7 +24,14 @@ public class MainActivity extends Activity {
         Button mapViewButton = (Button) findViewById(R.id.map_view);
         mapViewButton.setOnClickListener(new View.OnClickListener() {
         	public void onClick(View view) {
-        		self.startActivity(new Intent(self, TrafficMapActivity.class));
+        		startActivity(new Intent(self, TrafficMapActivity.class));
+        	}
+        });
+        
+        Button exitButton = (Button) findViewById(R.id.exit);
+        exitButton.setOnClickListener(new View.OnClickListener() {
+        	public void onClick(View view) {
+        		self.finish();
         	}
         });
 	}
