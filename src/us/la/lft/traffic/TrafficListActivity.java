@@ -1,5 +1,7 @@
 package us.la.lft.traffic;
 
+import com.flurry.android.FlurryAgent;
+
 import android.app.Activity;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
@@ -24,6 +26,7 @@ public class TrafficListActivity extends ListActivity {
 			return IncidentFetcher.getInstance().getIncidentList();
 		}
 		
+		@Override
 		protected void onPreExecute() {
 			progressDialog = ProgressDialog.show(
 				self,
@@ -34,6 +37,7 @@ public class TrafficListActivity extends ListActivity {
             );
 		}
 		
+		@Override
 		protected void onPostExecute(IncidentList result) {
 			lastIncidentPosition = result.size();
 		
@@ -67,12 +71,26 @@ public class TrafficListActivity extends ListActivity {
         cameraList = new CameraList();
 	}
 	
+	@Override
 	public void onResume() {
 		super.onResume();
 		
 		new FetchIncidentsTask().execute();
 	}
 	
+	@Override
+	public void onStart() {
+		super.onStart();
+		FlurryAgent.onStartSession(this, getResources().getString(R.string.flurry_key));
+	}
+	
+	@Override
+	public void onStop() {
+		super.onStop();
+		FlurryAgent.onEndSession(this);
+	}
+	
+	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		if (position <= lastIncidentPosition) {
 			IncidentValueObject valueObject = (IncidentValueObject) getListView().getItemAtPosition(position);
