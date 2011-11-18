@@ -19,6 +19,7 @@ public final class R {
         public static final int camera_description_view=0x7f050001;
         public static final int camera_image_view=0x7f050002;
         public static final int camera_title_view=0x7f050000;
+        public static final int exit=0x7f050008;
         public static final int list_header_title=0x7f050003;
         public static final int list_item_title=0x7f050004;
         public static final int list_view=0x7f050006;
@@ -36,6 +37,7 @@ public final class R {
         public static final int app_name=0x7f040000;
         public static final int camera=0x7f040001;
         public static final int cameras=0x7f040002;
+        public static final int exit=0x7f040009;
         public static final int incident=0x7f040003;
         public static final int incidents=0x7f040004;
         public static final int list_view=0x7f040006;

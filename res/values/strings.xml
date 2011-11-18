@@ -9,4 +9,5 @@
     <string name="list_view">List View</string>
     <string name="map_view">Map View</string>
     <string name="loading">Loading. Please wait...</string>
+    <string name="exit">Exit</string>
 </resources>
