@@ -3,8 +3,6 @@
     <string name="app_name">Lafayette Traffic</string>
     <string name="camera">Camera</string>
     <string name="cameras">Cameras</string>
-    <string name="exit">Exit</string>
-    <string name="flurry_key">393GSS74XXSJ64W4F6AL</string>
     <string name="incident">Incident</string>
     <string name="incidents">Incidents</string>
     <string name="user_agent">Lafayette Traffic for Android v1.0</string>

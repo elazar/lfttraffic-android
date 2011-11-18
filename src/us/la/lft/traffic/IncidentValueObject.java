@@ -45,7 +45,6 @@ public class IncidentValueObject {
 	public void setReportTime(String reportTime) {
 		this.reportTime = reportTime;
 	}
-	@Override
 	public String toString() {
 		return address + "\n" + description + " - " + reportTime;
 	}

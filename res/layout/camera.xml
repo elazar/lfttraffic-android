@@ -14,21 +14,9 @@
 		android:layout_height="wrap_content"
 		android:layout_below="@id/camera_title_view"
 		style="?android:attr/textAppearanceMedium" />
-	<SeekBar
-		android:id="@+id/camera_seek_bar"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:padding="5px"
-		android:saveEnabled="true"
-		android:indeterminate="false"
-		android:focusable="true"
-		android:focusableInTouchMode="true"
-		android:layout_below="@+id/camera_description_view" />
     <ImageView 
 		android:id="@+id/camera_image_view"
 		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:adjustViewBounds="true"
-		android:scaleType="fitXY"
-		android:layout_below="@+id/camera_seek_bar" />
+		android:layout_height="fill_parent"
+		android:layout_below="@id/camera_description_view" />
 </RelativeLayout>

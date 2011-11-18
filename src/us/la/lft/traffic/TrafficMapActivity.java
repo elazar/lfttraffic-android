@@ -1,7 +1,5 @@
 package us.la.lft.traffic;
 
-import com.flurry.android.FlurryAgent;
-
 import java.util.List;
 
 import com.google.android.maps.GeoPoint;
@@ -85,18 +83,6 @@ public class TrafficMapActivity extends MapActivity {
 
         mapView.postInvalidate();
     }
-	
-	@Override
-	public void onStart() {
-		super.onStart();
-		FlurryAgent.onStartSession(this, getResources().getString(R.string.flurry_key));
-	}
-	
-	@Override
-	public void onStop() {
-		super.onStop();
-		FlurryAgent.onEndSession(this);
-	}
 
 	@Override
 	protected boolean isRouteDisplayed() {
