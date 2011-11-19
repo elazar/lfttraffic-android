@@ -53,7 +53,8 @@ public class IncidentFetcher {
 	}
 
 	public IncidentList getIncidentList() {
-		if (new Date().getTime() - this.lastFetched < 45) {
+		// Cache results for 5 minutes (or 300000 milliseconds; getTime() returns milliseconds since UNIX epoch)
+		if (new Date().getTime() - this.lastFetched < 300000) {
 			return this.incidentList;
 		}
 
