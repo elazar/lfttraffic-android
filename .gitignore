@@ -1,1 +1,7 @@
 bin
+build.xml
+gen/R.java.d
+gen/us/la/lft/traffic/BuildConfig.java
+local.properties
+proguard-project.txt
+project.properties
