@@ -1,49 +1,22 @@
 package us.la.lft.traffic;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.NoSuchElementException;
+import java.util.Scanner;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
+import us.la.lft.traffic.http.HttpGetRequestFactory;
 
 public class IncidentFetcher {
-	protected DefaultHttpClient httpClient;
-	protected HttpGet httpRequest;
 	protected IncidentList incidentList = null;
 	protected long lastFetched = 0;
 	protected static IncidentFetcher incidentFetcher;
-
-	protected IncidentFetcher() {
-		HttpParams httpParams = new BasicHttpParams();
-		HttpConnectionParams.setConnectionTimeout(httpParams, 3000);
-		HttpConnectionParams.setSoTimeout(httpParams, 3000);
-		SchemeRegistry schemeRegistry = new SchemeRegistry();
-		schemeRegistry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
-		ClientConnectionManager connectionManager = new ThreadSafeClientConnManager(httpParams, schemeRegistry);
-		this.httpClient = new DefaultHttpClient(connectionManager, httpParams);
-		this.httpRequest = new HttpGet("http://laftrafficscraper.heroku.com");
-	}
 
 	public static IncidentFetcher getInstance() {
 		if (incidentFetcher == null) {
@@ -60,73 +33,34 @@ public class IncidentFetcher {
 
 		this.incidentList = new IncidentList();
 
-		HttpResponse httpResponse;
 		try {
-			httpResponse = this.httpClient.execute(this.httpRequest);
-			if (httpResponse.getStatusLine().getStatusCode() == 200) {
-				InputStream inputStream = httpResponse.getEntity().getContent();
-				DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-				DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-				Document document = documentBuilder.parse(inputStream);
-				NodeList accidents = document.getElementsByTagName("accident");
-				int accidentCount = accidents.getLength();
-				Node accident;
-				int accidentIndex;
-				String address, description, reportTime;
-				Date reportDate;
-				int reportTimePlusSignIndex;
-				int latitude, longitude;
+            InputStream inputStream = HttpGetRequestFactory.getHttpGetRequest().get("http://laftraf.laughinglarkllc.com/accidents.json");
+            if (inputStream == null) {
+                return this.incidentList;
+            }
 
-				NodeList childNodes;
-				int childNodeIndex, childNodeCount;
-				Node childNode;
-				String childNodeName, childNodeValue;
-				DateFormat dateParser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-				DateFormat dateFormatter = new SimpleDateFormat("h:mm a");
-				for (accidentIndex = 0; accidentIndex < accidentCount; accidentIndex++) {
-					accident = accidents.item(accidentIndex);
-					childNodes = accident.getChildNodes();
-					childNodeCount = childNodes.getLength();
-					address = description = reportTime = "";
-					latitude = longitude = 0;
-					for (childNodeIndex = 0; childNodeIndex < childNodeCount; childNodeIndex++) {
-						childNode = childNodes.item(childNodeIndex);
-						if (childNode.getNodeType() != Node.ELEMENT_NODE) {
-							continue;
-						}
-						childNodeName = childNode.getNodeName();
-						childNodeValue = childNode.getChildNodes().item(0).getNodeValue();
-						if (childNodeName.equals("location")) {
-							address = childNodeValue + address;
-						} else if (childNodeName.equals("dueto")) {
-							description = childNodeValue;
-						} else if (childNodeName.equals("time")) {
-							reportTimePlusSignIndex = childNodeValue.indexOf("+");
-							if (reportTimePlusSignIndex != -1) {
-								reportTime = childNodeValue.substring(0, reportTimePlusSignIndex);
-							} else {
-								reportTime = childNodeValue;
-							}
-							try {
-								reportDate = dateParser.parse(reportTime);
-								reportTime = dateFormatter.format(reportDate);
-							} catch (ParseException e) { }
-						} else if (childNodeName.equals("city")) {
-							address += ", " + childNodeValue;
-						} else if (childNodeName.equals("latitude")) {
-							latitude = (int) (Float.parseFloat(childNodeValue) * 1000000);
-						} else if (childNodeName.equals("longitude")) {
-							longitude = (int) (Float.parseFloat(childNodeValue) * 1000000);
-						}
-					}
-					this.incidentList.add(latitude, longitude, address, description, reportTime);
-				}
+            String content = new Scanner(inputStream).useDelimiter("\\A").next();
+            JSONArray accidents = new JSONArray(content);
+            int accidentCount = accidents.length();
+            DateFormat dateParser = new SimpleDateFormat("MM/dd/yyyy - hh:mm a");
+            DateFormat dateFormatter = new SimpleDateFormat("h:mm a");
+            JSONObject accident;
+            String address = "", description = "", time = "";
+            int latitude = 0, longitude = 0;
 
-				this.lastFetched = new Date().getTime();
-			}
-		} catch (IOException e) {
-		} catch (ParserConfigurationException e) {
-		} catch (SAXException e) {
+            for (int index = 0; index < accidentCount; index++) {
+                accident = accidents.getJSONObject(index);
+                address = accident.getString("address") + ", " + accident.getString("city");
+                description = accident.getString("due_to");
+                time = dateFormatter.format(dateParser.parse(accident.getString("time")));
+                latitude = (int) (Float.parseFloat(accident.getString("latitude")) * 1000000);
+                longitude = (int) (Float.parseFloat(accident.getString("longitude")) * 1000000);
+            }
+
+            this.incidentList.add(latitude, longitude, address, description, time);
+
+            this.lastFetched = new Date().getTime();
+		} catch (Exception e) {
 		}
 		return this.incidentList;
 	}
