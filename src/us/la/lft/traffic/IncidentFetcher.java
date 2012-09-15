@@ -2,10 +2,8 @@ package us.la.lft.traffic;
 
 import java.io.InputStream;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 import org.json.JSONArray;
@@ -55,9 +53,9 @@ public class IncidentFetcher {
                 time = dateFormatter.format(dateParser.parse(accident.getString("time")));
                 latitude = (int) (Float.parseFloat(accident.getString("latitude")) * 1000000);
                 longitude = (int) (Float.parseFloat(accident.getString("longitude")) * 1000000);
-            }
 
-            this.incidentList.add(latitude, longitude, address, description, time);
+                this.incidentList.add(latitude, longitude, address, description, time);
+            }
 
             this.lastFetched = new Date().getTime();
 		} catch (Exception e) {
