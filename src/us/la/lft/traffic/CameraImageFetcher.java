@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import java.io.InputStream;
-import java.io.IOException;
 
 import us.la.lft.traffic.http.HttpGetRequestFactory;
 import us.la.lft.traffic.http.HttpGetRequest;
