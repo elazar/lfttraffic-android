@@ -15,17 +15,18 @@ import android.os.Bundle;
 
 public class TrafficMapActivity extends MapActivity {
 	MapView mapView;
-	
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         Resources resources = getResources();
-        
+
         setContentView(R.layout.traffic_map);
-        
+
         mapView = (MapView) findViewById(R.id.map_view);
         mapView.setBuiltInZoomControls(true);
-        
+
         Intent intent = getIntent();
         GeoPoint center;
         MapController mapController = mapView.getController();
@@ -39,9 +40,9 @@ public class TrafficMapActivity extends MapActivity {
         }
     	mapController.setCenter(center);
         mapController.setZoom(15);
-        
+
         List<Overlay> overlays = mapView.getOverlays();
-        
+
         IncidentList incidentList = IncidentFetcher.getInstance().getIncidentList();
         if (incidentList.size() > 0) {
 	        Drawable incidentIcon = resources.getDrawable(R.drawable.incident);
@@ -65,12 +66,12 @@ public class TrafficMapActivity extends MapActivity {
         Drawable cameraIcon = resources.getDrawable(R.drawable.camera);
         String cameraTitle = resources.getString(R.string.camera);
         CameraItemizedOverlay cameraOverlay = new CameraItemizedOverlay(cameraIcon, this);
-        CameraList cameraList = new CameraList();
+        CameraList cameraList = CameraFetcher.getInstance().getCameraList();
         for (CameraValueObject cameraValueObject : cameraList) {
         	cameraOverlay.addOverlayItem(
     			new CameraOverlayItem(
     				new GeoPoint(
-						cameraValueObject.getLatitude(), 
+						cameraValueObject.getLatitude(),
 						cameraValueObject.getLongitude()
 					),
 					cameraTitle,

@@ -57,7 +57,7 @@ public class CameraActivity extends Activity {
         
         cameraIndex = getIntent().getIntExtra("camera", 0);
         
-        cameraList = new CameraList();
+        cameraList = CameraFetcher.getInstance().getCameraList();
         
         cameraDescriptionView = (TextView) findViewById(R.id.camera_description_view);
         cameraImageView = (ImageView) findViewById(R.id.camera_image_view);

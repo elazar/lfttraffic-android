@@ -56,6 +56,7 @@ public class IncidentFetcher {
 
                 this.incidentList.add(latitude, longitude, address, description, time);
             }
+            this.incidentList.trimToSize();
 
             this.lastFetched = new Date().getTime();
 		} catch (Exception e) {
