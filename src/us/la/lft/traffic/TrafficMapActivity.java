@@ -43,7 +43,7 @@ public class TrafficMapActivity extends MapActivity {
 
         List<Overlay> overlays = mapView.getOverlays();
 
-        IncidentList incidentList = IncidentFetcher.getInstance().getIncidentList();
+        IncidentList incidentList = new IncidentFetcher(getApplication()).getIncidentList();
         if (incidentList.size() > 0) {
 	        Drawable incidentIcon = resources.getDrawable(R.drawable.incident);
 	        String incidentTitle = resources.getString(R.string.incident);
@@ -66,7 +66,7 @@ public class TrafficMapActivity extends MapActivity {
         Drawable cameraIcon = resources.getDrawable(R.drawable.camera);
         String cameraTitle = resources.getString(R.string.camera);
         CameraItemizedOverlay cameraOverlay = new CameraItemizedOverlay(cameraIcon, this);
-        CameraList cameraList = CameraFetcher.getInstance().getCameraList();
+        CameraList cameraList = new CameraFetcher(getApplication()).getCameraList();
         for (CameraValueObject cameraValueObject : cameraList) {
         	cameraOverlay.addOverlayItem(
     			new CameraOverlayItem(

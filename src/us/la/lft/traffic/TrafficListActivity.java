@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -12,6 +13,8 @@ import android.widget.ListView;
 import java.util.concurrent.CountDownLatch;
 
 public class TrafficListActivity extends ListActivity {
+	private static String TAG = "TrafficListActivity";
+
 	protected int lastIncidentPosition = -1;
 	protected IncidentList incidentList = null;
 	protected CameraList cameraList = null;
@@ -25,7 +28,7 @@ public class TrafficListActivity extends ListActivity {
 
 		@Override
 		protected IncidentList doInBackground(Void... params) {
-			return IncidentFetcher.getInstance().getIncidentList();
+			return new IncidentFetcher(getApplication()).getIncidentList();
 		}
 
 		protected void onPostExecute(IncidentList result) {
@@ -43,7 +46,7 @@ public class TrafficListActivity extends ListActivity {
 
 		@Override
 		protected CameraList doInBackground(Void... params) {
-			return CameraFetcher.getInstance().getCameraList();
+			return new CameraFetcher(getApplication()).getCameraList();
 		}
 
 		protected void onPostExecute(CameraList result) {
@@ -74,7 +77,9 @@ public class TrafficListActivity extends ListActivity {
 		protected Void doInBackground(Void... params) {
 			try {
 				this.latch.await();
-			} catch (InterruptedException e) { }
+			} catch (InterruptedException e) {
+				Log.d(TAG, "Progress dialog task interrupted: " + e.getMessage());
+			}
 			return null;
 		}
 
