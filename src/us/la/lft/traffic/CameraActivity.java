@@ -47,6 +47,7 @@ public class CameraActivity extends Activity {
 			if (progressDialog != null) {
 				progressDialog.dismiss();
 			}
+			handler.postDelayed(cameraImageUpdater, 2000);
 		}
 	}
 
@@ -55,12 +56,19 @@ public class CameraActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.camera);
 
-		cameraIndex = getIntent().getIntExtra("camera", 0);
-
-		cameraList = new CameraFetcher(getApplication()).getCameraList();
-
-		cameraDescriptionView = (TextView) findViewById(R.id.camera_description_view);
 		cameraImageView = (ImageView) findViewById(R.id.camera_image_view);
+		cameraImageView.setAlpha(0);
+
+		cameraIndex = getIntent().getIntExtra("camera", 0);
+		cameraList = new CameraFetcher(getApplication()).getCameraList();
+		CameraValueObject cameraValueObject = cameraList.get(cameraIndex);
+
+		String description = cameraValueObject.getDescription();
+		cameraDescriptionView = (TextView) findViewById(R.id.camera_description_view);
+		cameraDescriptionView.setText(description);
+
+		String imageUrl = CameraImageUrlGenerator.getUrl(cameraValueObject.getImage());
+		cameraImageFetcher = new CameraImageFetcher(imageUrl);
 
 		handler = new Handler();
 		cameraImageUpdater = new Runnable() {
@@ -68,25 +76,8 @@ public class CameraActivity extends Activity {
 			public void run() {
 				new UpdateCameraImageTask().execute();
 				progressDialogShown = true;
-				handler.postDelayed(this, 2000);
 			}
 		};
-
-		updateCamera();
-	}
-
-	private void updateCamera() {
-		handler.removeCallbacks(cameraImageUpdater);
-		cameraImageView.setAlpha(0);
-
-		CameraValueObject cameraValueObject = cameraList.get(cameraIndex);
-
-		String description = cameraValueObject.getDescription();
-		cameraDescriptionView.setText(description);
-
-		String imageUrl = CameraImageUrlGenerator.getUrl(cameraValueObject.getImage());
-		cameraImageFetcher = new CameraImageFetcher(imageUrl);
-
 		runOnUiThread(cameraImageUpdater);
 	}
 
